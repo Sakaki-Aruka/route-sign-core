@@ -3,12 +3,33 @@ package online.aruka.util.request
 import kotlinx.serialization.json.Json
 import okhttp3.Credentials
 import okhttp3.Headers
+import okhttp3.MediaType
+import okhttp3.MediaType.Companion.toMediaType
 import okhttp3.OkHttpClient
 import okhttp3.Request
 import okhttp3.RequestBody
 import okhttp3.Response
 
 object Request {
+
+    val APPLICATION_JSON: MediaType = "application/json".toMediaType()
+
+    fun getIllegalCodeWarn(
+        code: Int,
+        allowedCode: Set<Int>,
+        body: String,
+        headers: Map<String, String> = emptyMap()
+    ): String {
+        val n = System.lineSeparator()
+        var warn = "$n${"-".repeat(10)}$n"
+        warn += "code '$code' is not allowed.$n"
+        warn += "allowed=$allowedCode$n"
+        warn += "body=$body$n"
+        warn += "headers=${headers}$n"
+        warn += "${"-".repeat(10)}$n"
+        return warn
+    }
+
     inline fun <reified T> getSingle(
         address: String,
         client: OkHttpClient,
@@ -22,7 +43,9 @@ object Request {
         val code: Int = response.code
         val body: String = response.body?.string() ?: defaultBody
 
-        if (code !in allowCode) throw IllegalStateException("code '$code' is not allowed. \nallowed=$allowCode\nbody=$body")
+        if (code !in allowCode) {
+            throw IllegalStateException(getIllegalCodeWarn(code, allowCode, body, response.headers.toMap()))
+        }
 
         val deserializer = Json { ignoreUnknownKeys = ignoreUnknown }
         return Triple(code, deserializer.decodeFromString<T>(body), response.headers)
@@ -41,7 +64,9 @@ object Request {
         val code: Int = response.code
         val body: String = response.body?.string() ?: defaultBody
 
-        if (code !in allowCode) throw IllegalStateException("code '$code' is not allowed. \nallowed=$allowCode\nbody=$body")
+        if (code !in allowCode) {
+            throw IllegalStateException(getIllegalCodeWarn(code, allowCode, body, response.headers.toMap()))
+        }
 
         val deserializer = Json { ignoreUnknownKeys = ignoreUnknown }
         return Triple(code, deserializer.decodeFromString<List<T>>(body), response.headers)
@@ -104,13 +129,19 @@ object Request {
         ignoreUnknown: Boolean = true,
         defaultResponseBody: String = "",
         allowCode: Set<Int> = setOf(201, 202),
+        ignoreCode: Set<Int> = emptySet(),
         buildFromResponse: Boolean = true // true = decode "T" from a response. when false doesn't and result will be Triple<Int, null, Headers?>
     ): Triple<Int, T?, Headers> {
         val response: Response = postCore(address, client, requestBody, headers, credential)
         val code: Int = response.code
         val body: String = response.body?.string() ?: defaultResponseBody
+        val responseHeaders: Headers = response.headers
 
-        if (code !in allowCode) throw IllegalStateException("code '$code' is not allowed. \nallowed=$allowCode\nbody=$body")
+        if (code in ignoreCode) {
+            return Triple(code, null, responseHeaders)
+        } else if (code !in allowCode) {
+            throw IllegalStateException(getIllegalCodeWarn(code, allowCode, body, responseHeaders.toMap()))
+        }
 
         val deserializer = Json { ignoreUnknownKeys = ignoreUnknown }
         val v: T? =
@@ -128,13 +159,19 @@ object Request {
         ignoreUnknown: Boolean = true,
         defaultResponseBody: String = "",
         allowCode: Set<Int> = setOf(201, 202),
+        ignoreCode: Set<Int> = emptySet(),
         buildFromResponse: Boolean = true
     ): Triple<Int, List<T>?, Headers> {
         val response: Response = postCore(address, client, requestBody, headers, credential)
         val code: Int = response.code
         val body: String = response.body?.string() ?: defaultResponseBody
+        val responseHeaders: Headers = response.headers
 
-        if (code !in allowCode) throw IllegalStateException("code '$code' is not allowed. \nallowed=$allowCode\nbody=$body")
+        if (code in ignoreCode) {
+            return Triple(code, null, responseHeaders)
+        } else if (code !in allowCode) {
+            throw IllegalStateException(getIllegalCodeWarn(code, allowCode, body, response.headers.toMap()))
+        }
 
         val deserializer = Json { ignoreUnknownKeys = ignoreUnknown }
         val v: List<T>? =
@@ -174,13 +211,19 @@ object Request {
         headers: Headers? = null,
         requestBody: RequestBody? = null,
         credential: Pair<String, String>? = null,
-        allowCode: Set<Int> = setOf(201, 202)
+        allowCode: Set<Int> = setOf(201, 202),
+        ignoreCode: Set<Int> = emptySet()
     ): Pair<Int, Headers> {
         val response: Response = deleteCore(address, client, requestBody, headers, credential)
         val code: Int = response.code
         val body: String = response.body?.string() ?: ""
+        val responseHeaders: Headers = response.headers
 
-        if (code !in allowCode) throw IllegalStateException("code '$code' is not allowed. \nallowed=$allowCode\nbody=$body")
-        return code to response.headers
+        if (code in ignoreCode) {
+            return code to responseHeaders
+        } else if (code !in allowCode) {
+            throw IllegalStateException(getIllegalCodeWarn(code, allowCode, body, responseHeaders.toMap()))
+        }
+        return code to responseHeaders
     }
 }
