@@ -35,7 +35,7 @@ data class SimpleBackend(
     ) {
         @Serializable
         @SerialName("algorithm")
-        enum class Algorithm(type: String) {
+        enum class Algorithm(val type: String) {
             @SerialName("unknown") Unknown("unknown"),
             @SerialName("first") First("first"),
             @SerialName("hash") Hash("hash"),
@@ -53,7 +53,7 @@ data class SimpleBackend(
 
     @Serializable
     @SerialName("mode")
-    enum class Mode(type: String) {
+    enum class Mode(val type: String) {
         @SerialName("unknown") Unknown("unknown"),
         @SerialName("http") HTTP("http"),
         @SerialName("tcp") TCP("tcp"),

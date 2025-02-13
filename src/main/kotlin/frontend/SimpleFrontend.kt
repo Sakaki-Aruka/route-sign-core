@@ -30,7 +30,7 @@ data class SimpleFrontend(
 
     @Serializable
     @SerialName("mode")
-    enum class Mode(type: String) {
+    enum class Mode(val type: String) {
         @SerialName("unknown") Unknown("unknown"),
         @SerialName("http") HTTP("http"),
         @SerialName("tcp") TCP("tcp"),
