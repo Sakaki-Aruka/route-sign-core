@@ -1,0 +1,186 @@
+package online.aruka.util.request
+
+import kotlinx.serialization.json.Json
+import okhttp3.Credentials
+import okhttp3.Headers
+import okhttp3.OkHttpClient
+import okhttp3.Request
+import okhttp3.RequestBody
+import okhttp3.Response
+
+object Request {
+    inline fun <reified T> getSingle(
+        address: String,
+        client: OkHttpClient,
+        headers: Headers? = null,
+        credential: Pair<String, String>? = null, // only Basic auth,
+        ignoreUnknown: Boolean = true,
+        defaultBody: String = "",
+        allowCode: Set<Int> = setOf(200)
+    ): Triple<Int, T, Headers> {
+        val response: Response = getCore(address, client, headers, credential)
+        val code: Int = response.code
+        val body: String = response.body?.string() ?: defaultBody
+
+        if (code !in allowCode) throw IllegalStateException("code '$code' is not allowed. \nallowed=$allowCode\nbody=$body")
+
+        val deserializer = Json { ignoreUnknownKeys = ignoreUnknown }
+        return Triple(code, deserializer.decodeFromString<T>(body), response.headers)
+    }
+
+    inline fun <reified T> getList(
+        address: String,
+        client: OkHttpClient,
+        headers: Headers? = null,
+        credential: Pair<String, String>? = null, // only Basic auth,
+        ignoreUnknown: Boolean = true,
+        defaultBody: String = "",
+        allowCode: Set<Int> = setOf(200)
+    ): Triple<Int, List<T>, Headers> {
+        val response: Response = getCore(address, client, headers, credential)
+        val code: Int = response.code
+        val body: String = response.body?.string() ?: defaultBody
+
+        if (code !in allowCode) throw IllegalStateException("code '$code' is not allowed. \nallowed=$allowCode\nbody=$body")
+
+        val deserializer = Json { ignoreUnknownKeys = ignoreUnknown }
+        return Triple(code, deserializer.decodeFromString<List<T>>(body), response.headers)
+    }
+
+    fun getCore(
+        address: String,
+        client: OkHttpClient,
+        headers: Headers? = null,
+        credential: Pair<String, String>? = null
+    ): Response {
+        val request = Request.Builder()
+            .url(address)
+            .let { builder ->
+                headers?.let { h -> builder.headers(h) }
+                credential?.let { (name, password) ->
+                    builder.header(
+                        "Authorization",
+                        Credentials.basic(name, password)
+                    )
+                }
+                builder
+            }
+            .build()
+
+        return client.newCall(request).execute()
+    }
+
+    fun postCore(
+        address: String,
+        client: OkHttpClient,
+        requestBody: RequestBody? = null,
+        headers: Headers? = null,
+        credential: Pair<String, String>? = null
+    ): Response {
+        val request = Request.Builder()
+            .url(address)
+            .let { builder ->
+                headers?.let { h -> builder.headers(h) }
+                credential?.let { (name, password) ->
+                    builder.header(
+                        "Authorization",
+                        Credentials.basic(name, password)
+                    )
+                }
+                requestBody?.let { r -> builder.post(r) }
+                builder
+            }
+            .build()
+
+        return client.newCall(request).execute()
+    }
+
+    inline fun <reified T> postSingle(
+        address: String,
+        client: OkHttpClient,
+        headers: Headers? = null,
+        requestBody: RequestBody? = null,
+        credential: Pair<String, String>? = null,
+        ignoreUnknown: Boolean = true,
+        defaultResponseBody: String = "",
+        allowCode: Set<Int> = setOf(201, 202),
+        buildFromResponse: Boolean = true // true = decode "T" from a response. when false doesn't and result will be Triple<Int, null, Headers?>
+    ): Triple<Int, T?, Headers> {
+        val response: Response = postCore(address, client, requestBody, headers, credential)
+        val code: Int = response.code
+        val body: String = response.body?.string() ?: defaultResponseBody
+
+        if (code !in allowCode) throw IllegalStateException("code '$code' is not allowed. \nallowed=$allowCode\nbody=$body")
+
+        val deserializer = Json { ignoreUnknownKeys = ignoreUnknown }
+        val v: T? =
+            if (buildFromResponse) deserializer.decodeFromString<T>(body)
+            else null
+        return Triple(code, v, response.headers)
+    }
+
+    inline fun <reified T> postList(
+        address: String,
+        client: OkHttpClient,
+        headers: Headers? = null,
+        requestBody: RequestBody? = null,
+        credential: Pair<String, String>? = null,
+        ignoreUnknown: Boolean = true,
+        defaultResponseBody: String = "",
+        allowCode: Set<Int> = setOf(201, 202),
+        buildFromResponse: Boolean = true
+    ): Triple<Int, List<T>?, Headers> {
+        val response: Response = postCore(address, client, requestBody, headers, credential)
+        val code: Int = response.code
+        val body: String = response.body?.string() ?: defaultResponseBody
+
+        if (code !in allowCode) throw IllegalStateException("code '$code' is not allowed. \nallowed=$allowCode\nbody=$body")
+
+        val deserializer = Json { ignoreUnknownKeys = ignoreUnknown }
+        val v: List<T>? =
+            if (buildFromResponse) deserializer.decodeFromString<List<T>>(body)
+            else null
+        return Triple(code, v, response.headers)
+    }
+
+    fun deleteCore(
+        address: String,
+        client: OkHttpClient,
+        requestBody: RequestBody? = null,
+        headers: Headers? = null,
+        credential: Pair<String, String>? = null
+    ): Response {
+        val request = Request.Builder()
+            .url(address)
+            .let { builder ->
+                headers?.let { h -> builder.headers(h) }
+                credential?.let { (name, password) ->
+                    builder.header(
+                        "Authorization",
+                        Credentials.basic(name, password)
+                    )
+                }
+                requestBody?.let { r -> builder.post(r) }
+                builder
+            }
+            .build()
+
+        return client.newCall(request).execute()
+    }
+
+    fun deleteSingle(
+        address: String,
+        client: OkHttpClient,
+        headers: Headers? = null,
+        requestBody: RequestBody? = null,
+        credential: Pair<String, String>? = null,
+        allowCode: Set<Int> = setOf(201, 202)
+    ): Pair<Int, Headers> {
+        val response: Response = deleteCore(address, client, requestBody, headers, credential)
+        val code: Int = response.code
+        val body: String = response.body?.string() ?: ""
+
+        if (code !in allowCode) throw IllegalStateException("code '$code' is not allowed. \nallowed=$allowCode\nbody=$body")
+        return code to response.headers
+    }
+}
