@@ -1,4 +1,4 @@
-package online.aruka.backend.server
+package online.aruka.route_sign_core.backend.server
 
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
@@ -6,8 +6,8 @@ import kotlinx.serialization.json.Json
 import okhttp3.Headers
 import okhttp3.OkHttpClient
 import okhttp3.RequestBody.Companion.toRequestBody
-import online.aruka.util.request.Request
-import online.aruka.util.value.BoolExtend
+import online.aruka.route_sign_core.util.request.Request
+import online.aruka.route_sign_core.util.value.BoolExtend
 
 @Serializable
 data class SimpleServer(

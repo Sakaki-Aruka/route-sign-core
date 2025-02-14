@@ -1,0 +1,3 @@
+package online.aruka.route_sign_core.backend.server
+
+interface HAProxyBackendServer

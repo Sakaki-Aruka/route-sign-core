@@ -1,4 +1,4 @@
-package online.aruka.util.request
+package online.aruka.route_sign_core.util.request
 
 import kotlinx.serialization.json.Json
 import okhttp3.Credentials

@@ -1,10 +1,10 @@
-package online.aruka.frontend
+package online.aruka.route_sign_core.frontend
 
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 import okhttp3.Headers
 import okhttp3.OkHttpClient
-import online.aruka.util.request.Request
+import online.aruka.route_sign_core.util.request.Request
 
 @Serializable
 data class SimpleFrontend(

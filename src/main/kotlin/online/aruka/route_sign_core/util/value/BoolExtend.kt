@@ -1,4 +1,4 @@
-package online.aruka.util.value
+package online.aruka.route_sign_core.util.value
 
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
