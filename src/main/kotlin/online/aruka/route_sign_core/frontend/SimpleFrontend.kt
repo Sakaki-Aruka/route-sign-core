@@ -28,6 +28,19 @@ data class SimpleFrontend(
         }
     }
 
+    fun getBinds(
+        address: String,
+        apiVersion: String,
+        credential: Pair<String, String>
+    ): Triple<Int, List<SimpleBind>, Headers> {
+        return SimpleBind.get(
+            address = address,
+            apiVersion = apiVersion,
+            frontendName = this.name,
+            credential = credential
+        )
+    }
+
     @Serializable
     @SerialName("mode")
     enum class Mode(val type: String) {
