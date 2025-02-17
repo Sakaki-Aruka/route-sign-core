@@ -9,14 +9,12 @@ data class ConnectionIdentifier(
 
     companion object {
         fun getLatestVersion(
-            address: String,
-            apiVersion: String,
-            credential: Pair<String, String>
+            essential: EssentialData
         ): ConnectionIdentifier {
             val version: String = Request.getSingle<String>(
-                address = "$address/$apiVersion/services/haproxy/configuration/version",
+                address = "${essential.address}/${essential.apiVersion}/services/haproxy/configuration/version",
                 client = OkHttpClient(),
-                credential = credential
+                credential = essential.credential
             ).second
 
             return ConnectionIdentifier(Type.VERSION, version)
