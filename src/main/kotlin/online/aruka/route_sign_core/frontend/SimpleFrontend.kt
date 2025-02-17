@@ -2,8 +2,12 @@ package online.aruka.route_sign_core.frontend
 
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
+import kotlinx.serialization.json.Json
 import okhttp3.Headers
 import okhttp3.OkHttpClient
+import okhttp3.RequestBody.Companion.toRequestBody
+import okhttp3.internal.http2.Header
+import online.aruka.route_sign_core.util.request.ConnectionIdentifier
 import online.aruka.route_sign_core.util.request.Request
 
 @Serializable
@@ -26,6 +30,20 @@ data class SimpleFrontend(
                 credential = credential
             )
         }
+    }
+
+    fun add(
+        address: String,
+        apiVersion: String,
+        configurationIdentifier: ConnectionIdentifier,
+        credential: Pair<String, String>
+    ): Triple<Int, SimpleFrontend?, Headers> {
+        return Request.postSingle(
+            address = "$address/$apiVersion/services/haproxy/configuration/frontends${configurationIdentifier.toQueryString()}",
+            client = OkHttpClient(),
+            requestBody = Json.encodeToString(this).toRequestBody(Request.APPLICATION_JSON),
+            credential = credential
+        )
     }
 
     fun getBinds(

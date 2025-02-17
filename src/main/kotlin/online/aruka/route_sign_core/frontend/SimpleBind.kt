@@ -10,7 +10,7 @@ data class SimpleBind(
     val address: String,
     val port: Int,
     val name: String = "$address:$port"
-) {
+):HAProxyBind {
     companion object {
         fun get(
             address: String,
@@ -24,5 +24,18 @@ data class SimpleBind(
                 credential = credential
             )
         }
+    }
+
+    fun add(
+        address: String,
+        apiVersion: String,
+        frontendName: String,
+        credential: Pair<String, String>
+    ): Triple<Int, SimpleBind?, Headers> {
+        return Request.postSingle<SimpleBind>(
+            address = "$address/$apiVersion/services/haproxy/configuration/frontends/$frontendName/binds",
+            client = OkHttpClient(),
+            credential = credential
+        )
     }
 }

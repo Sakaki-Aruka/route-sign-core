@@ -6,6 +6,7 @@ import kotlinx.serialization.json.Json
 import okhttp3.Headers
 import okhttp3.OkHttpClient
 import okhttp3.RequestBody.Companion.toRequestBody
+import online.aruka.route_sign_core.util.request.ConnectionIdentifier
 import online.aruka.route_sign_core.util.request.Request
 import online.aruka.route_sign_core.util.value.BoolExtend
 
@@ -16,20 +17,6 @@ data class SimpleServer(
     val name: String = "unknown",
     val port: Int = -1
 ): HAProxyBackendServer {
-
-    data class ConnectionIdentifier(
-        val type: Type,
-        val id: String // "version" or "transaction_id". see more -> https://www.haproxy.com/documentation/dataplaneapi/community/?v=v3#post-/services/haproxy/configuration/backends/-parent_name-/servers
-    ) {
-        enum class Type(val type: String) {
-            VERSION("version"),
-            TRANSACTION_ID("transaction_id")
-        }
-
-        fun toQueryString(isFirst: Boolean = true): String {
-            return "${if (isFirst) "?" else "&"}${this.type.type}=${this.id}"
-        }
-    }
 
     companion object {
         fun get(
