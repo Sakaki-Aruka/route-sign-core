@@ -4,9 +4,9 @@ import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.Json
 import okhttp3.Headers
-import okhttp3.OkHttpClient
 import okhttp3.RequestBody.Companion.toRequestBody
 import online.aruka.route_sign_core.util.request.ConnectionIdentifier
+import online.aruka.route_sign_core.util.request.EssentialData
 import online.aruka.route_sign_core.util.request.Request
 import online.aruka.route_sign_core.util.value.BoolExtend
 
@@ -20,55 +20,35 @@ data class SimpleServer(
 
     companion object {
         fun get(
-            address: String,
-            parent: String,
-            apiVersion: String,
-            credential: Pair<String, String>
+            essential: EssentialData,
+            parent: String
         ): Triple<Int, List<SimpleServer>, Headers> {
             return Request.getList<SimpleServer>(
-                address = "$address/$apiVersion/services/haproxy/configuration/backends/$parent/servers",
-                credential = credential
+                address = "${essential.address}/${essential.apiVersion}/services/haproxy/configuration/backends/$parent/servers",
+                credential = essential.credential
             )
         }
+    }
 
-        fun add(
-            address: String,
-            parent: String,
-            new: SimpleServer,
-            connectionIdentifier: ConnectionIdentifier,
-            allowCode: Set<Int> = setOf(201, 202),
-            ignoreCode: Set<Int> = emptySet(),
-            apiVersion: String,
-            credential: Pair<String, String>
-        ): Pair<SimpleServer?, Headers> {
-            val (_, addedServer, headers) = Request.postSingle<SimpleServer>(
-                address = "$address/$apiVersion/services/haproxy/configuration/backends/$parent/servers${connectionIdentifier.toQueryString()}",
-                allowCode = allowCode,
-                ignoreCode = ignoreCode,
-                requestBody = Json.encodeToString(new).toRequestBody(Request.APPLICATION_JSON),
-                credential = credential
-            )
-            return addedServer to headers
-        }
+    fun add(
+        essential: EssentialData,
+        parent: String,
+        connectionIdentifier: ConnectionIdentifier,
+    ): Pair<SimpleServer?, Headers> {
+        val (_, addedServer, headers) = Request.postSingle<SimpleServer>(
+            address = "${essential.address}/${essential.apiVersion}/services/haproxy/configuration/backends/$parent/servers${connectionIdentifier.toQueryString()}",
+            requestBody = Json.encodeToString(this).toRequestBody(Request.APPLICATION_JSON),
+            credential = essential.credential
+        )
+        return addedServer to headers
+    }
 
-        fun delete(
-            address: String,
-            parent: String,
-            serverName: String,
-            connectionIdentifier: ConnectionIdentifier,
-            allowCode: Set<Int> = setOf(202, 204),
-            ignoreCode: Set<Int> = emptySet(),
-            apiVersion: String,
-            credentials: Pair<String, String>,
-            forceReload: Boolean = false
-        ): Pair<Int, Headers> {
-            val queryApplied = "$address/$apiVersion/services/haproxy/configuration/backends/$parent/servers/$serverName${connectionIdentifier.toQueryString()}&force_reload=$forceReload"
-            return Request.deleteSingle(
-                address = queryApplied,
-                allowCode = allowCode,
-                ignoreCode = ignoreCode,
-                credential = credentials
-            )
-        }
+    fun delete(
+        essential: EssentialData,
+        parent: String,
+        connectionIdentifier: ConnectionIdentifier,
+    ): Pair<Int, Headers> {
+        val queryApplied = "${essential.address}/${essential.apiVersion}/services/haproxy/configuration/backends/$parent/servers/${this.name}${connectionIdentifier.toQueryString()}"
+        return Request.deleteSingle(address = queryApplied)
     }
 }
