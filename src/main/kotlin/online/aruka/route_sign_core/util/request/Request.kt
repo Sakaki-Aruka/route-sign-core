@@ -32,7 +32,7 @@ object Request {
 
     inline fun <reified T> getSingle(
         address: String,
-        client: OkHttpClient,
+        client: OkHttpClient = OkHttpClient(),
         headers: Headers? = null,
         credential: Pair<String, String>? = null, // only Basic auth,
         ignoreUnknown: Boolean = true,
@@ -53,7 +53,7 @@ object Request {
 
     inline fun <reified T> getList(
         address: String,
-        client: OkHttpClient,
+        client: OkHttpClient = OkHttpClient(),
         headers: Headers? = null,
         credential: Pair<String, String>? = null, // only Basic auth,
         ignoreUnknown: Boolean = true,
@@ -122,7 +122,7 @@ object Request {
 
     inline fun <reified T> postSingle(
         address: String,
-        client: OkHttpClient,
+        client: OkHttpClient = OkHttpClient(),
         headers: Headers? = null,
         requestBody: RequestBody? = null,
         credential: Pair<String, String>? = null,
@@ -152,7 +152,7 @@ object Request {
 
     inline fun <reified T> postList(
         address: String,
-        client: OkHttpClient,
+        client: OkHttpClient = OkHttpClient(),
         headers: Headers? = null,
         requestBody: RequestBody? = null,
         credential: Pair<String, String>? = null,
@@ -207,11 +207,11 @@ object Request {
 
     fun deleteSingle(
         address: String,
-        client: OkHttpClient,
+        client: OkHttpClient = OkHttpClient(),
         headers: Headers? = null,
         requestBody: RequestBody? = null,
         credential: Pair<String, String>? = null,
-        allowCode: Set<Int> = setOf(201, 202),
+        allowCode: Set<Int> = setOf(202, 204),
         ignoreCode: Set<Int> = emptySet()
     ): Pair<Int, Headers> {
         val response: Response = deleteCore(address, client, requestBody, headers, credential)

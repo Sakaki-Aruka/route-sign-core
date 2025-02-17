@@ -27,7 +27,6 @@ data class SimpleServer(
         ): Triple<Int, List<SimpleServer>, Headers> {
             return Request.getList<SimpleServer>(
                 address = "$address/$apiVersion/services/haproxy/configuration/backends/$parent/servers",
-                client = OkHttpClient(),
                 credential = credential
             )
         }
@@ -44,7 +43,6 @@ data class SimpleServer(
         ): Pair<SimpleServer?, Headers> {
             val (_, addedServer, headers) = Request.postSingle<SimpleServer>(
                 address = "$address/$apiVersion/services/haproxy/configuration/backends/$parent/servers${connectionIdentifier.toQueryString()}",
-                client = OkHttpClient(),
                 allowCode = allowCode,
                 ignoreCode = ignoreCode,
                 requestBody = Json.encodeToString(new).toRequestBody(Request.APPLICATION_JSON),
@@ -67,7 +65,6 @@ data class SimpleServer(
             val queryApplied = "$address/$apiVersion/services/haproxy/configuration/backends/$parent/servers/$serverName${connectionIdentifier.toQueryString()}&force_reload=$forceReload"
             return Request.deleteSingle(
                 address = queryApplied,
-                client = OkHttpClient(),
                 allowCode = allowCode,
                 ignoreCode = ignoreCode,
                 credential = credentials

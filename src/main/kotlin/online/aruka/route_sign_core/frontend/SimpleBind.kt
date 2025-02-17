@@ -1,8 +1,11 @@
 package online.aruka.route_sign_core.frontend
 
 import kotlinx.serialization.Serializable
+import kotlinx.serialization.json.Json
 import okhttp3.Headers
-import okhttp3.OkHttpClient
+import okhttp3.RequestBody.Companion.toRequestBody
+import online.aruka.route_sign_core.util.request.ConnectionIdentifier
+import online.aruka.route_sign_core.util.request.EssentialData
 import online.aruka.route_sign_core.util.request.Request
 
 @Serializable
@@ -13,29 +16,34 @@ data class SimpleBind(
 ):HAProxyBind {
     companion object {
         fun get(
-            address: String,
-            apiVersion: String,
+            essential: EssentialData,
             frontendName: String,
-            credential: Pair<String, String>
         ): Triple<Int, List<SimpleBind>, Headers> {
             return Request.getList<SimpleBind>(
-                address = "$address/$apiVersion/services/haproxy/configuration/frontends/$frontendName/binds",
-                client = OkHttpClient(),
-                credential = credential
+                address = "${essential.address}/${essential.apiVersion}/services/haproxy/configuration/frontends/$frontendName/binds",
+                credential = essential.credential
             )
         }
     }
 
     fun add(
-        address: String,
-        apiVersion: String,
-        frontendName: String,
-        credential: Pair<String, String>
+        essential: EssentialData,
+        frontendName: String
     ): Triple<Int, SimpleBind?, Headers> {
         return Request.postSingle<SimpleBind>(
-            address = "$address/$apiVersion/services/haproxy/configuration/frontends/$frontendName/binds",
-            client = OkHttpClient(),
-            credential = credential
+            address = "${essential.address}/${essential.apiVersion}/services/haproxy/configuration/frontends/$frontendName/binds",
+            requestBody = Json.encodeToString(this).toRequestBody(Request.APPLICATION_JSON),
+            credential = essential.credential
+        )
+    }
+
+    fun delete(
+        essential: EssentialData,
+        frontendName: String,
+        connectionIdentifier: ConnectionIdentifier
+    ): Pair<Int, Headers> {
+        return Request.deleteSingle(
+            address = "${essential.address}/${essential.apiVersion}/services/haproxy/configuration/frontends/$frontendName/binds/${this.name}${connectionIdentifier.toQueryString()}",
         )
     }
 }

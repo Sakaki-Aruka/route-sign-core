@@ -2,8 +2,12 @@ package online.aruka.route_sign_core.backend
 
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
+import kotlinx.serialization.json.Json
 import okhttp3.Headers
-import okhttp3.OkHttpClient
+import okhttp3.RequestBody.Companion.toRequestBody
+import online.aruka.route_sign_core.frontend.SimpleBind
+import online.aruka.route_sign_core.util.request.ConnectionIdentifier
+import online.aruka.route_sign_core.util.request.EssentialData
 import online.aruka.route_sign_core.util.request.Request
 
 @Serializable
@@ -16,16 +20,32 @@ data class SimpleBackend(
 
     companion object {
         fun get(
-            address: String,
-            apiVersion: String,
-            credential: Pair<String, String>
+            essential: EssentialData
         ): Triple<Int, List<SimpleBackend>, Headers> {
             return Request.getList<SimpleBackend>(
-                address = "$address/$apiVersion/services/haproxy/configuration/backends",
-                client = OkHttpClient(),
-                credential = credential
+                address = "${essential.address}/${essential.apiVersion}/services/haproxy/configuration/backends",
+                credential = essential.credential
             )
         }
+    }
+
+    fun add(
+        essential: EssentialData,
+        connectionIdentifier: ConnectionIdentifier
+    ): Triple<Int, SimpleBind?, Headers> {
+        return Request.postSingle(
+            address = "${essential.address}/${essential.apiVersion}/services/haproxy/configuration/backends${connectionIdentifier.toQueryString()}",
+            requestBody = Json.encodeToString(this).toRequestBody(Request.APPLICATION_JSON),
+        )
+    }
+
+    fun delete(
+        essential: EssentialData,
+        connectionIdentifier: ConnectionIdentifier
+    ): Pair<Int, Headers> {
+        return Request.deleteSingle(
+            address =  "${essential.address}/${essential.apiVersion}/services/haproxy/configuration/backends/${this.name}${connectionIdentifier.toQueryString()}",
+        )
     }
 
     @Serializable
