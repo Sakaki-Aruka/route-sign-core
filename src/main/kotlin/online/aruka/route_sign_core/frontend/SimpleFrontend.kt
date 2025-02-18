@@ -43,6 +43,14 @@ data class SimpleFrontend(
             }
             return portRange.filter { i -> i !in usedPorts }.toSet()
         }
+
+        fun isUniqueName(
+            name: String,
+            essential: EssentialData
+        ): Boolean {
+            val frontendList: List<SimpleFrontend> = get(essential).second
+            return frontendList.none { f -> f.name == name }
+        }
     }
 
     fun add(

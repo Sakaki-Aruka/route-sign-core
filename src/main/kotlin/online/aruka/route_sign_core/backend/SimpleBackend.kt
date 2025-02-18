@@ -27,6 +27,14 @@ data class SimpleBackend(
                 credential = essential.credential
             )
         }
+
+        fun isUniqueName(
+            name: String,
+            essential: EssentialData
+        ): Boolean {
+            val backendList: List<SimpleBackend> = get(essential).second
+            return backendList.none { b -> b.name == name }
+        }
     }
 
     fun add(
