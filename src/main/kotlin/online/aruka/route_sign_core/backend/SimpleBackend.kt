@@ -43,6 +43,7 @@ data class SimpleBackend(
     ): Triple<Int, SimpleBind?, Headers> {
         return Request.postSingle(
             address = "${essential.address}/${essential.apiVersion}/services/haproxy/configuration/backends${connectionIdentifier.toQueryString()}",
+            credential = essential.credential,
             requestBody = Json.encodeToString(this).toRequestBody(Request.APPLICATION_JSON),
         )
     }
