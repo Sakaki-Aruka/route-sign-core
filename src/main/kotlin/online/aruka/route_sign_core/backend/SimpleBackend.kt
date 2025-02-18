@@ -40,7 +40,7 @@ data class SimpleBackend(
     fun add(
         essential: EssentialData,
         connectionIdentifier: ConnectionIdentifier
-    ): Triple<Int, SimpleBind?, Headers> {
+    ): Triple<Int, SimpleBackend?, Headers> {
         return Request.postSingle(
             address = "${essential.address}/${essential.apiVersion}/services/haproxy/configuration/backends${connectionIdentifier.toQueryString()}",
             credential = essential.credential,
