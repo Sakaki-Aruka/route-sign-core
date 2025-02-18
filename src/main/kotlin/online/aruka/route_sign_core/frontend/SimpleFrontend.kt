@@ -26,6 +26,23 @@ data class SimpleFrontend(
                 credential = essential.credential
             )
         }
+
+        fun enablePorts(
+            essential: EssentialData,
+            portRange: IntRange
+        ): Set<Int> {
+            val frontendList: List<SimpleFrontend> = get(essential).second
+            val usedPorts: MutableSet<Int>  = mutableSetOf()
+            for (front in frontendList) {
+                front.getBinds(essential)
+                    .let { (_, binds, _) ->
+                        if (binds.isNotEmpty()) {
+                            binds.forEach { b -> usedPorts.add(b.port) }
+                        }
+                    }
+            }
+            return portRange.filter { i -> i !in usedPorts }.toSet()
+        }
     }
 
     fun add(
