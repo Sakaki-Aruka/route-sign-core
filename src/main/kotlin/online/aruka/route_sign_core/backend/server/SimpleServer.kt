@@ -49,6 +49,6 @@ data class SimpleServer(
         connectionIdentifier: ConnectionIdentifier,
     ): Pair<Int, Headers> {
         val queryApplied = "${essential.address}/${essential.apiVersion}/services/haproxy/configuration/backends/$parent/servers/${this.name}${connectionIdentifier.toQueryString()}"
-        return Request.deleteSingle(address = queryApplied)
+        return Request.deleteSingle(address = queryApplied, credential = essential.credential)
     }
 }

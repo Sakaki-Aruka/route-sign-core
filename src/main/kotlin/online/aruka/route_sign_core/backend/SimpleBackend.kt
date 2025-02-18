@@ -54,6 +54,7 @@ data class SimpleBackend(
     ): Pair<Int, Headers> {
         return Request.deleteSingle(
             address =  "${essential.address}/${essential.apiVersion}/services/haproxy/configuration/backends/${this.name}${connectionIdentifier.toQueryString()}",
+            credential = essential.credential
         )
     }
 

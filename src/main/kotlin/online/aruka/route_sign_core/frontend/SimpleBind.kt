@@ -28,10 +28,11 @@ data class SimpleBind(
 
     fun add(
         essential: EssentialData,
-        frontendName: String
+        frontendName: String,
+        connectionIdentifier: ConnectionIdentifier
     ): Triple<Int, SimpleBind?, Headers> {
         return Request.postSingle<SimpleBind>(
-            address = "${essential.address}/${essential.apiVersion}/services/haproxy/configuration/frontends/$frontendName/binds",
+            address = "${essential.address}/${essential.apiVersion}/services/haproxy/configuration/frontends/$frontendName/binds${connectionIdentifier.toQueryString()}",
             requestBody = Json.encodeToString(this).toRequestBody(Request.APPLICATION_JSON),
             credential = essential.credential
         )
@@ -43,6 +44,7 @@ data class SimpleBind(
         connectionIdentifier: ConnectionIdentifier
     ): Pair<Int, Headers> {
         return Request.deleteSingle(
+            credential = essential.credential,
             address = "${essential.address}/${essential.apiVersion}/services/haproxy/configuration/frontends/$frontendName/binds/${this.name}${connectionIdentifier.toQueryString()}",
         )
     }

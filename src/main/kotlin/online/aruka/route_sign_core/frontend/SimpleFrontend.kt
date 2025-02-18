@@ -69,6 +69,7 @@ data class SimpleFrontend(
         configurationIdentifier: ConnectionIdentifier
     ): Pair<Int, Headers> {
         return Request.deleteSingle(
+            credential = essential.credential,
             address = "${essential.address}/${essential.apiVersion}/services/haproxy/configuration/frontends/${this.name}${configurationIdentifier.toQueryString()}",
         )
     }
