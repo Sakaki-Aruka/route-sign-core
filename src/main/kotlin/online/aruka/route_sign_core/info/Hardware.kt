@@ -1,10 +1,11 @@
-package online.aruka.info
+package online.aruka.route_sign_core.info
 
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 import okhttp3.Headers
 import okhttp3.OkHttpClient
-import online.aruka.util.request.Request
+import online.aruka.route_sign_core.util.request.EssentialData
+import online.aruka.route_sign_core.util.request.Request
 
 @Serializable
 data class Hardware(
@@ -13,15 +14,11 @@ data class Hardware(
 ) {
 
     companion object {
-        fun get(
-            address: String, //address is pure address e.g.) http://localhost:5555
-            apiVersion: String,
-            credential: Pair<String, String>
-        ): Triple<Int, Hardware, Headers> {
+        fun get(essential: EssentialData): Triple<Int, Hardware, Headers> {
             return Request.getSingle<Hardware>(
-                address = "$address/$apiVersion/info",
+                address = "${essential.address}/${essential.apiVersion}/info",
                 client = OkHttpClient(),
-                credential = credential
+                credential = essential.credential
             )
         }
     }

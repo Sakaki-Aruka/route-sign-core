@@ -1,10 +1,11 @@
 plugins {
     kotlin("jvm") version "2.1.0"
     kotlin("plugin.serialization") version "2.1.0"
+    id("com.gradleup.shadow") version "9.0.0-beta8"
 }
 
 group = "online.aruka"
-version = "1.0-SNAPSHOT"
+version = "0.1"
 
 repositories {
     mavenCentral()
