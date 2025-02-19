@@ -147,7 +147,7 @@ object Request {
         val v: T? =
             if (buildFromResponse) deserializer.decodeFromString<T>(body)
             else null
-        return Triple(code, v, response.headers)
+        return Triple(code, v, responseHeaders)
     }
 
     inline fun <reified T> postList(
@@ -177,7 +177,7 @@ object Request {
         val v: List<T>? =
             if (buildFromResponse) deserializer.decodeFromString<List<T>>(body)
             else null
-        return Triple(code, v, response.headers)
+        return Triple(code, v, responseHeaders)
     }
 
     fun deleteCore(
@@ -197,9 +197,9 @@ object Request {
                         Credentials.basic(name, password)
                     )
                 }
-                requestBody?.let { r -> builder.post(r) }
                 builder
             }
+            .delete(requestBody)
             .build()
 
         return client.newCall(request).execute()
