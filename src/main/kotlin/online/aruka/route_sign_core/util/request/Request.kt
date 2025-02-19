@@ -199,7 +199,7 @@ object Request {
                 }
                 builder
             }
-            .delete(requestBody)
+            .method("DELETE", requestBody)
             .build()
 
         return client.newCall(request).execute()
