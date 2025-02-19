@@ -211,7 +211,7 @@ object Request {
         headers: Headers? = null,
         requestBody: RequestBody? = null,
         credential: Pair<String, String>? = null,
-        allowCode: Set<Int> = setOf(202, 204),
+        allowCode: Set<Int> = setOf(200, 202, 204),
         ignoreCode: Set<Int> = emptySet()
     ): Pair<Int, Headers> {
         val response: Response = deleteCore(address, client, requestBody, headers, credential)
