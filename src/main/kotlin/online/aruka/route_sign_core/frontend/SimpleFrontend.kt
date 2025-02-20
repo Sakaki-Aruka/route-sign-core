@@ -14,7 +14,8 @@ data class SimpleFrontend(
     @SerialName("default_backend") val defaultBackend: String? = null,
     val from: String = "unknown",
     val mode: Mode = Mode.Unknown,
-    val name: String = "unknown"
+    val name: String = "unknown",
+    @SerialName("acl_list") val acl: List<ACL>? = null,
 ): HAProxyFrontend {
 
     companion object {
@@ -81,6 +82,24 @@ data class SimpleFrontend(
         return SimpleBind.get(
             essential = essential,
             frontendName = this.name,
+        )
+    }
+
+    fun getBackendSwitchingRules(
+        essential: EssentialData
+    ): Triple<Int, List<BackendSwitchingRule>, Headers> {
+        return Request.getList(
+            address = "${essential.address}/${essential.apiVersion}/services/haproxy/configuration/frontends/${this.name}/backend_switching_rules",
+            credential = essential.credential
+        )
+    }
+
+    fun getACLs(
+        essential: EssentialData
+    ): Triple<Int, List<ACL>, Headers> {
+        return Request.getList(
+            address = "${essential.address}/${essential.apiVersion}/services/haproxy/configuration/frontends/${this.name}/acls",
+            credential = essential.credential
         )
     }
 

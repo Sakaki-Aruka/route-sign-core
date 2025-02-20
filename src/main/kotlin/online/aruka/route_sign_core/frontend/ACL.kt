@@ -3,6 +3,10 @@ package online.aruka.route_sign_core.frontend
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.Transient
+import okhttp3.Headers
+import online.aruka.route_sign_core.util.request.ConnectionIdentifier
+import online.aruka.route_sign_core.util.request.EssentialData
+import online.aruka.route_sign_core.util.request.Request
 
 @Serializable
 data class ACL(
@@ -11,6 +15,19 @@ data class ACL(
     val value: String,
     @SerialName("criterion") val criterionStr: String = criterion?.flat() ?: "",
 ) {
+
+    fun add(
+        essential: EssentialData,
+        frontendName: String,
+        connectionIdentifier: ConnectionIdentifier,
+        index: Int = 0
+    ): Triple<Int, ACL?,Headers> {
+        return Request.postSingle<ACL>(
+            address = "${essential.address}/${essential.apiVersion}/services/haproxy/configuration/frontends/$frontendName/acls/$index${connectionIdentifier.toQueryString()}",
+            credential = essential.credential
+        )
+    }
+
     data class Criterion(
         val type: CriterionType,
         val flags: List<HAPRoxyACLFlag>
