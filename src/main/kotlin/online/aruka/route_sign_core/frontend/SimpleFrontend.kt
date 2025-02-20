@@ -11,7 +11,7 @@ import online.aruka.route_sign_core.util.request.Request
 
 @Serializable
 data class SimpleFrontend(
-    @SerialName("default_backend") val defaultBackend: String = "unknown",
+    @SerialName("default_backend") val defaultBackend: String? = null,
     val from: String = "unknown",
     val mode: Mode = Mode.Unknown,
     val name: String = "unknown"
@@ -57,9 +57,10 @@ data class SimpleFrontend(
         essential: EssentialData,
         configurationIdentifier: ConnectionIdentifier
     ): Triple<Int, SimpleFrontend?, Headers> {
+        val encoder = Json { explicitNulls = false }
         return Request.postSingle(
             address = "${essential.address}/${essential.apiVersion}/services/haproxy/configuration/frontends${configurationIdentifier.toQueryString()}",
-            requestBody = Json.encodeToString(this).toRequestBody(Request.APPLICATION_JSON),
+            requestBody = encoder.encodeToString(this).toRequestBody(Request.APPLICATION_JSON),
             credential = essential.credential
         )
     }
