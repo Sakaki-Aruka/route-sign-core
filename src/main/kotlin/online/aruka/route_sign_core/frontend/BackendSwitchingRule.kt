@@ -51,8 +51,9 @@ data class BackendSwitchingRule(
         )
     }
 
+    @Serializable
     enum class Condition(val type: String) {
-        IF("if"),
-        UNLESS("unless")
+        @SerialName("if") IF("if"),
+        @SerialName("unless") UNLESS("unless")
     }
 }
